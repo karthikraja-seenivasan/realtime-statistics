@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
@@ -60,7 +61,7 @@ public class TransactionServiceImpl implements TransactionService{
 
 
     @Override
-    public Mono<ResponseEntity<TransactionStatistics>> getStatistics() {
+    public Flux<ResponseEntity<TransactionStatistics>> getStatistics() {
         TransactionStatistics statistics = new TransactionStatistics();
        List<Transaction> filteredList = transactionMap.entrySet().stream().filter(val -> getStatus(val.getValue().getTimeStamp())==201).map(res ->
              res.getValue()).collect(Collectors.toList());
@@ -70,7 +71,7 @@ public class TransactionServiceImpl implements TransactionService{
         statistics.setMin(BigDecimal.valueOf(filteredList.stream().mapToDouble(min -> min.getAmount().doubleValue()).min().orElse(0.0)));
         statistics.setMax(BigDecimal.valueOf(filteredList.stream().mapToDouble(max -> max.getAmount().doubleValue()).max().orElse(0.0)));
         statistics.setCount(filteredList.stream().count());
-        return Mono.just(ResponseEntity.ok(statistics));
+        return Flux.just(ResponseEntity.ok(statistics));
     }
 
     @Override
