@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 public interface TransactionService {
     Mono<ResponseEntity<TransactionResponse>> save(Transaction transaction);
 
-    Flux<ResponseEntity<TransactionStatistics>> getStatistics();
+    Mono<ResponseEntity<TransactionStatistics>> getStatistics();
 
     Mono<ResponseEntity> delete();
 }
