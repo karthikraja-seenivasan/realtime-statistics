@@ -32,8 +32,8 @@ public class TransactionsController {
 
 
     @GetMapping(value = "/statistics", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ResponseEntity<TransactionStatistics>> getStatistics() {
-        return transactionService.getStatistics().switchIfEmpty(Flux.empty());
+    public Mono<ResponseEntity<TransactionStatistics>> getStatistics() {
+        return transactionService.getStatistics().switchIfEmpty(Mono.empty());
     }
 
     @DeleteMapping("/transactions")
