@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 
 import javax.validation.Valid;
 import java.util.Optional;
@@ -30,9 +31,9 @@ public class TransactionsController {
     }
 
 
-    @GetMapping(value = "/statistics", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity<TransactionStatistics>> getStatistics() {
-        return transactionService.getStatistics().switchIfEmpty(Mono.empty());
+    @GetMapping(value = "/statistics", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ResponseEntity<TransactionStatistics>> getStatistics() {
+        return transactionService.getStatistics().switchIfEmpty(Flux.empty());
     }
 
     @DeleteMapping("/transactions")
