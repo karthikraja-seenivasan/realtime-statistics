@@ -61,7 +61,7 @@ public class TransactionServiceImpl implements TransactionService{
 
 
     @Override
-    public Flux<ResponseEntity<TransactionStatistics>> getStatistics() {
+    public Mono<ResponseEntity<TransactionStatistics>> getStatistics() {
         TransactionStatistics statistics = new TransactionStatistics();
        List<Transaction> filteredList = transactionMap.entrySet().stream().filter(val -> getStatus(val.getValue().getTimeStamp())==201).map(res ->
              res.getValue()).collect(Collectors.toList());
@@ -71,7 +71,7 @@ public class TransactionServiceImpl implements TransactionService{
         statistics.setMin(BigDecimal.valueOf(filteredList.stream().mapToDouble(min -> min.getAmount().doubleValue()).min().orElse(0.0)));
         statistics.setMax(BigDecimal.valueOf(filteredList.stream().mapToDouble(max -> max.getAmount().doubleValue()).max().orElse(0.0)));
         statistics.setCount(filteredList.stream().count());
-        return Flux.just(ResponseEntity.ok(statistics));
+        return Mono.just(ResponseEntity.ok(statistics));
     }
 
     @Override
