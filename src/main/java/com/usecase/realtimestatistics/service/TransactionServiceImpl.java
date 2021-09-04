@@ -13,7 +13,6 @@ import reactor.core.publisher.Mono;
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Date;
 import java.util.Map;
@@ -46,8 +45,16 @@ public class TransactionServiceImpl implements TransactionService{
                 Transaction.builder().amount(BigDecimal.valueOf(66.40)).timeStamp("2021-09-04T07:02:51Z").build());
     }
     @Override
-    public Mono<TransactionResponse> save(Transaction transaction) {
-        return Mono.just(TransactionResponse.builder().statusCode(getStatus(transaction.getTimeStamp())).build());
+    public Mono<ResponseEntity<TransactionResponse>> save(Transaction transaction) {
+
+        ResponseEntity<TransactionResponse> entity = ResponseEntity.noContent().build();
+        if(getStatus(transaction.getTimeStamp())==201){
+
+            entity = ResponseEntity.status(HttpStatus.CREATED)
+                    .body( TransactionResponse.builder().statusCode(getStatus(transaction.getTimeStamp())).build());
+        }
+
+        return Mono.just(entity);
     }
 
 
@@ -55,7 +62,7 @@ public class TransactionServiceImpl implements TransactionService{
     @Override
     public Mono<ResponseEntity<TransactionStatistics>> getStatistics() {
         TransactionStatistics statistics = new TransactionStatistics();
-       List<Transaction> filteredList = transactionMap.entrySet().stream().filter(val -> getStatus(val.getValue().getTimeStamp())==204).map(res ->
+       List<Transaction> filteredList = transactionMap.entrySet().stream().filter(val -> getStatus(val.getValue().getTimeStamp())==201).map(res ->
              res.getValue()).collect(Collectors.toList());
 
         statistics.setSum(BigDecimal.valueOf( filteredList.stream().mapToDouble(sum -> sum.getAmount().doubleValue()).sum()));
@@ -64,6 +71,12 @@ public class TransactionServiceImpl implements TransactionService{
         statistics.setMax(BigDecimal.valueOf(filteredList.stream().mapToDouble(max -> max.getAmount().doubleValue()).max().orElse(0.0)));
         statistics.setCount(filteredList.stream().count());
         return Mono.just(ResponseEntity.ok(statistics));
+    }
+
+    @Override
+    public Mono<ResponseEntity> delete() {
+        transactionMap.clear();
+        return Mono.just(ResponseEntity.status(HttpStatus.CREATED).build());
     }
 
     public int getStatus(String requestTime){
@@ -76,11 +89,12 @@ public class TransactionServiceImpl implements TransactionService{
         if(diff<0){
             throw new GlobalException(HttpStatus.UNPROCESSABLE_ENTITY,"The timeframe cannot be futere value");
         }
-        else if (diffInMins<=1){
-            statuCode = HttpStatus.NO_CONTENT.value();
+        else if (diffInMins<1){
+            statuCode = HttpStatus.CREATED.value();
         }
         else {
-            statuCode = HttpStatus.CREATED.value();
+            statuCode = HttpStatus.NO_CONTENT.value();
+
         }
         return  statuCode;
     }

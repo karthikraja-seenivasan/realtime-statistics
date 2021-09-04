@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
 public interface TransactionService {
-    Mono<TransactionResponse> save(Transaction transaction);
+    Mono<ResponseEntity<TransactionResponse>> save(Transaction transaction);
 
     Mono<ResponseEntity<TransactionStatistics>> getStatistics();
+
+    Mono<ResponseEntity> delete();
 }
